@@ -1,12 +1,15 @@
-import 'package:blood_app_nepal/screens/drawer.dart';
-import 'package:blood_app_nepal/screens/loading.dart';
-import 'package:blood_app_nepal/screens/blood_requests.dart';
+import 'package:blood_app/screens/drawer.dart';
+import 'package:blood_app/screens/loading.dart';
+import 'package:blood_app/screens/blood_requests.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../model/donor.dart';
 import 'edit_profile.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:geolocator/geolocator.dart';
@@ -21,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final GoogleSignIn googleSignIn = GoogleSignIn();
 //  final StorageReference storageRef = FirebaseStorage.instance.ref();
-  final donorRef = Firestore.instance.collection('donor');
+  final donorRef =  FirebaseFirestore.instance.collection('donor');
 //
   Donor currentUser;
   bool wannaSearch = false;
@@ -63,8 +66,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   getUserLocation() async {
-    Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.lowest);
-    List<Placemark> placemarks= await Geolocator().placemarkFromCoordinates(position.latitude, position.longitude);
+    Position position = await  Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.lowest);
+    List<Placemark> placemarks= await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark placemark = placemarks[0];
     String completeAddress = '${placemark.locality}';
     userLocationQuery.text = completeAddress;
@@ -85,10 +88,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   showDonors(context) async {
 
-    final QuerySnapshot snapshot = await donorRef.getDocuments();
+    final QuerySnapshot snapshot = await donorRef.get();
 
     setState(() {
-      donors = snapshot.documents;
+      donors = snapshot.docs;
     });
   }
 //
@@ -96,12 +99,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   createUserInFireStore() async {
     final GoogleSignInAccount user = googleSignIn.currentUser;
-    DocumentSnapshot doc = await donorRef.document(user.id).get();
+    DocumentSnapshot doc = await donorRef.doc(user.id).get();
 
     if (!doc.exists) {
 
       // 3) get username from create account, use it to make new user document in users collection
-      donorRef.document(user.id).setData({
+      donorRef.doc(user.id).set({
         "id": user.id,
         "displayName": user.displayName,
         "photoUrl": user.photoUrl,
@@ -113,13 +116,12 @@ class _LoginScreenState extends State<LoginScreen> {
         'dateOfBirth':"",
       });
 
-      doc = await donorRef.document(user.id).get();
+      doc = await donorRef.doc(user.id).get();
     }
 
     currentUser = Donor.fromDocument(doc);
 
   }
-
 
 
   StreamBuilder showSearchResults(){
@@ -135,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
         print(userBloodQuery.text);
         List<ShowDonors> allDonors = [];
-        snapshot.data.documents.forEach((doc) {
+        snapshot.data.docs.forEach((doc) {
           allDonors.add(ShowDonors.fromDocument(doc));
         });
 
@@ -143,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
           height: MediaQuery.of(context).size.height,
           child: Column(
             children: <Widget>[
-              allDonors.length==0?Text("No Donors Found"):Column(
+              allDonors.length==0?Text("Aucun résultats de donateurs"):Column(
                 children: allDonors,
               ),
             ],
@@ -165,8 +167,8 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Container(padding: EdgeInsets.only(top: 10.0, bottom: 30.0),child: Text("Donate Blood or Find Donor!", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontFamily: "Gotham", fontSize: 20.0 ),)),
-              Container(padding: EdgeInsets.only(top: 30.0, bottom: 50.0),child: Image.asset('assets/img/logo.png', height: MediaQuery.of(context).size.height*0.2,)),
+              Container(padding: EdgeInsets.only(top: 10.0, bottom: 30.0),child: Text("Donner ou trouver un donneur!", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontFamily: "Gotham", fontSize: 20.0 ),)),
+              Container(padding: EdgeInsets.only(top: 30.0, bottom: 50.0),child: Image.asset('assets/img/logo.jpeg', height: MediaQuery.of(context).size.height*0.2,)),
               Container(
                   padding: const EdgeInsets.only(top:20.0),
                   child: Row(
@@ -181,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: MediaQuery.of(context).size.width*.7,
                         child: FlatButton(
                           onPressed:loginWithGoogle,
-                          child: Text("Continue with Google", style: TextStyle(color: Colors.red, fontFamily: "Gotham", fontSize: 20.0 ),),
+                          child: Text("Continuer avec Google", style: TextStyle(color: Colors.red, fontFamily: "Gotham", fontSize: 20.0 ),),
                           color:Colors.white ,
                         ),
                       ),
@@ -202,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
-      bottomSheet: InkWell(onTap:()=>launch("https://yourkoseli.com"),child: Image.asset('assets/img/supporter.png', width: double.infinity,)),
+      //bottomSheet: InkWell(onTap:()=>launch("https://www.google.com"),child: Image.asset('assets/img/supporter.png', width: double.infinity,)),
     );
   }
 
@@ -229,7 +231,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.all(15.0),
-                        child: Text("Find a Donor", style: TextStyle(fontFamily: "Gotham", fontSize: 20.0, color: Colors.black),),
+                        child: Text("Retrouver un donneur", style: TextStyle(fontFamily: "Gotham", fontSize: 20.0, color: Colors.black),),
                       ),
                       Container(
                         padding: EdgeInsets.only(left:30.0, right: 30.0, top: 10.0, bottom: 10.0),
@@ -263,7 +265,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 borderRadius: BorderRadius.circular(10.0),
                               )
                           ),
-                          hint: Text("Choose Blood Group"),
+                          hint: Text("Choisir un groupe sanguin"),
                           items: [
                             DropdownMenuItem(child: Text("A+"),
                               value: "A+",),
@@ -303,7 +305,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 });
                               },
                               color: Colors.red,
-                              child: Text("Search", style: TextStyle(fontFamily: "Gotham", fontSize: 20.0, color: Colors.white),),
+                              child: Text("Rechercher", style: TextStyle(fontFamily: "Gotham", fontSize: 20.0, color: Colors.white),),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   side: BorderSide(color: Colors.red)),
@@ -317,7 +319,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProfile(currentUser, authScreen())));
                               },
                               color: Colors.red,
-                              child: Text("Be Donor", style: TextStyle(fontFamily: "Gotham", fontSize: 20.0, color: Colors.white),),
+                              child: Text("Donneur", style: TextStyle(fontFamily: "Gotham", fontSize: 20.0, color: Colors.white),),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   side: BorderSide(color: Colors.red)),
@@ -332,7 +334,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ]
           ),
           SizedBox(height: 20.0,),
-          Text("  Recent Donors", style: TextStyle(fontFamily: "Gotham", fontSize: 22.0, color: Colors.black),),
+          Text("Donneurs Récent", style: TextStyle(fontFamily: "Gotham", fontSize: 22.0, color: Colors.black),),
           SizedBox(height: 10.0,),
           wannaSearch?showSearchResults():StreamBuilder(
               stream: donorRef.where("bloodGroup", isGreaterThan: "").snapshots(),
@@ -341,7 +343,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   return circularLoading();
                 }
                 List<ShowDonors> allDonors = [];
-                snapshot.data.documents.forEach((doc) {
+                snapshot.data.docs.forEach((doc) {
                   allDonors.add(ShowDonors.fromDocument(doc));
                 });
 
@@ -493,7 +495,7 @@ class ShowDonors extends StatelessWidget {
                                 _launchURL("tel:$phoneNumber");
                               },
                               child: Text(
-                                "Call Now",
+                                "Appeler",
                                 style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontFamily: "Gotham", fontSize: 18.0),
                               ),
                             ),

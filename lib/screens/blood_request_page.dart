@@ -11,13 +11,13 @@ class ShowRequest extends StatefulWidget {
 
 class _ShowRequestState extends State<ShowRequest> {
 
-  final bloodRequestRef = Firestore.instance.collection('request');
+  final bloodRequestRef = FirebaseFirestore.instance.collection('request');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Blood Requests"),
+        title: Text("Demande de sang"),
       ),
       body: StreamBuilder(
         stream: bloodRequestRef.snapshots(),
@@ -26,7 +26,7 @@ class _ShowRequestState extends State<ShowRequest> {
             return circularLoading();
           }
           List<ShowRequests> allRequests = [];
-          snapshot.data.documents.forEach((doc) {
+          snapshot.data.docs.forEach((doc) {
             allRequests.add(ShowRequests.fromDocument(doc));
           });
 
@@ -136,7 +136,7 @@ class ShowRequests extends StatelessWidget {
                         Container(
                           padding: EdgeInsets.symmetric(vertical: 10.0),
                           child: Text(
-                            "Required in $requiredDate",
+                            "Requis $requiredDate",
                             style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 20.0,
@@ -163,7 +163,7 @@ class ShowRequests extends StatelessWidget {
                                 _launchURL("tel:$phoneNumber");
                               },
                               child: Text(
-                                "Call Now",
+                                "Appeler",
                                 style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontFamily: "Gotham", fontSize: 18.0),
                               ),
                             ),

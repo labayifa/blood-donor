@@ -1,4 +1,4 @@
-import 'package:blood_app_nepal/screens/login_screen.dart';
+import 'package:blood_app/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 
 class ThankYou extends StatelessWidget {
@@ -19,14 +19,14 @@ class ThankYou extends StatelessWidget {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: Text("Thank You for Being a Donor! You are a REAL HERO!!", style: TextStyle(color: Colors.white, fontFamily: "Gotham", fontSize: 26.0),),
+                child: Text("Merci d'être un donneur de sang! Vous êtes les héros de ce monde!!", style: TextStyle(color: Colors.white, fontFamily: "Gotham", fontSize: 26.0),),
               ),
               FlatButton(
                 onPressed: (){
                   Navigator.push(context, MaterialPageRoute(builder: (context)=>authScreen));
                 },
                 color: Colors.blueGrey,
-                child: Text("Go Back", style: TextStyle(color: Colors.white, fontFamily: "Gotham", fontSize: 20.0),),
+                child: Text("Retour", style: TextStyle(color: Colors.white, fontFamily: "Gotham", fontSize: 20.0),),
               )
             ],
           ),

@@ -1,6 +1,7 @@
-import 'package:blood_app_nepal/model/donor.dart';
-import 'package:blood_app_nepal/screens/loading.dart';
+import 'package:blood_app/model/donor.dart';
+import 'package:blood_app/screens/loading.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -17,7 +18,7 @@ class RequestBlood extends StatefulWidget {
 
 class _RequestBloodState extends State<RequestBlood> {
 
-  final bloodRequestRef = Firestore.instance.collection('request');
+  final bloodRequestRef = FirebaseFirestore.instance.collection('request');
 
   bool isRequesting = false;
 
@@ -33,8 +34,8 @@ class _RequestBloodState extends State<RequestBlood> {
 
 
   getUserLocation() async {
-    Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.lowest);
-    List<Placemark> placemarks= await Geolocator().placemarkFromCoordinates(position.latitude, position.longitude);
+    Position position = await  Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.lowest);
+    List<Placemark> placemarks= await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark placemark = placemarks[0];
     String completeAddress = '${placemark.locality}, ${placemark.administrativeArea}';
     addressController.text = completeAddress;
@@ -42,9 +43,9 @@ class _RequestBloodState extends State<RequestBlood> {
 
   requestBlood() async {
 
-    DocumentSnapshot doc = await bloodRequestRef.document(Uuid().v4()).get();
+    DocumentSnapshot doc = await bloodRequestRef.doc(Uuid().v4()).get();
 
-    bloodRequestRef.document(Uuid().v4()).setData({
+    bloodRequestRef.doc(Uuid().v4()).set({
       "location":addressController.text,
       "bloodGroup":bloodGroupController.text,
       "phoneNumber":phoneNumberController.text,
@@ -55,7 +56,6 @@ class _RequestBloodState extends State<RequestBlood> {
   }
 
   handleBloodRequest() async {
-
     setState(() {
       isRequesting = true;
     });
@@ -90,7 +90,7 @@ class _RequestBloodState extends State<RequestBlood> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Request Blood"),
+        title: Text("Demande de sang"),
       ),
      body: Builder(builder: (context){
        return isRequesting?circularLoading():Padding(
@@ -104,14 +104,14 @@ class _RequestBloodState extends State<RequestBlood> {
                  child: TextFormField(
                    validator: (value) {
                      if (value.isEmpty) {
-                       return 'Donor needs your Location';
+                       return 'Votre position pour donation';
                      }
                      return null;
                    },
                    decoration: InputDecoration(
                        fillColor: Colors.grey,
                        suffixIcon: IconButton(icon: Icon(Icons.location_on, color: Colors.red,), onPressed: getUserLocation),
-                       hintText: "Your Location",
+                       hintText: "Votre position",
                        border: OutlineInputBorder(
                          borderRadius: BorderRadius.circular(10.0),
                        )
@@ -125,13 +125,13 @@ class _RequestBloodState extends State<RequestBlood> {
                    keyboardType: TextInputType.numberWithOptions(),
                    validator: (value) {
                      if (value.isEmpty) {
-                       return 'Blood Amount is Required';
+                       return 'Quatité de sang requise';
                      }
                      return null;
                    },
                    decoration: InputDecoration(
                        fillColor: Colors.grey,
-                       hintText: "Blood Amount (in Pin)",
+                       hintText: "Quantité de sang",
                        border: OutlineInputBorder(
                          borderRadius: BorderRadius.circular(10.0),
                        )
@@ -144,13 +144,13 @@ class _RequestBloodState extends State<RequestBlood> {
                  child: TextFormField(
                    keyboardType: TextInputType.numberWithOptions(),
                    validator: (value) {
-                     if (value.isEmpty || value.length!=10) {
-                       return 'Provide 10 Digit Number';
+                     if (value.isEmpty || value.length < 8) {
+                       return 'Le numéro doit faire 8 caractères';
                      }
                      return null;
                    },
                    decoration: InputDecoration(
-                       hintText: "Phone Number",
+                       hintText: "Téléphone",
                        border: OutlineInputBorder(
                          borderRadius: BorderRadius.circular(10.0),
                        )
@@ -162,7 +162,7 @@ class _RequestBloodState extends State<RequestBlood> {
                  padding: const EdgeInsets.only(top:8.0),
                  child: DropdownButtonFormField(
                    validator: (value) => value == null
-                       ? 'Please provide Blood Group' : null,
+                       ? 'Veuillez choisir un groupe sanguin' : null,
                    onChanged: (val){
                      bloodGroupController.text = val;
                    },
@@ -171,7 +171,7 @@ class _RequestBloodState extends State<RequestBlood> {
                          borderRadius: BorderRadius.circular(10.0),
                        )
                    ),
-                   hint: Text("Blood Group"),
+                   hint: Text("Groupe Sanguin"),
                    items: [
                      DropdownMenuItem(child: Text("A+"),
                        value: "A+",),
@@ -200,12 +200,12 @@ class _RequestBloodState extends State<RequestBlood> {
                    },
                    validator: (value) {
                      if (value.isEmpty) {
-                       return 'Please Provide Date';
+                       return 'Choisir une date';
                      }
                      return null;
                    },
                    decoration: InputDecoration(
-                       hintText: "When Do you Need?",
+                       hintText: "Pour quand ?",
                        border: OutlineInputBorder(
                          borderRadius: BorderRadius.circular(10.0),
                        ),
@@ -217,7 +217,7 @@ class _RequestBloodState extends State<RequestBlood> {
                Padding(
                  padding: const EdgeInsets.all(8.0),
                  child: FlatButton(
-                     child: Text("Request Blood", style: TextStyle(color: Colors.white, fontSize: 20.0),),
+                     child: Text("Demander du sang", style: TextStyle(color: Colors.white, fontSize: 20.0),),
                      color: Theme.of(context).primaryColor,
                      onPressed: () {
 

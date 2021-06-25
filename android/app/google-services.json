@@ -1,42 +1,41 @@
 {
   "project_info": {
-    "project_number": "935595903040",
-    "firebase_url": "https://flutter-share-3f3fd.firebaseio.com",
-    "project_id": "flutter-share-3f3fd",
-    "storage_bucket": "flutter-share-3f3fd.appspot.com"
+    "project_number": "719767685510",
+    "project_id": "blood-donation-2edd2",
+    "storage_bucket": "blood-donation-2edd2.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:935595903040:android:391eb5922fe44d054777a5",
+        "mobilesdk_app_id": "1:719767685510:android:5269d3dfa1625f512e8407",
         "android_client_info": {
           "package_name": "com.yourkoseli.blood_app_nepal"
         }
       },
       "oauth_client": [
         {
-          "client_id": "935595903040-pkgttah4qu7hfp0adiidapelkpe9u4vg.apps.googleusercontent.com",
+          "client_id": "719767685510-jfmvp5fma797q5rcre3cb8dcefnt1f71.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.yourkoseli.blood_app_nepal",
-            "certificate_hash": "4bf50955d47edf01752735c22f2818c0410c7105"
+            "certificate_hash": "d299a71daae2cb34ff6ade5adb1d51807e26fcd9"
           }
         },
         {
-          "client_id": "935595903040-7do5985abmtt6c7989ssf3a7g8kb9bjl.apps.googleusercontent.com",
+          "client_id": "719767685510-e11gkgigs4s1pkg6nd4k9vemcvr0p966.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAkGy2JxQi1JEzzvAvs-5jkRHwAidhCVMs"
+          "current_key": "AIzaSyChK4Obqo3UxMj4gDWai9d_F2Lq1teDI90"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "935595903040-7do5985abmtt6c7989ssf3a7g8kb9bjl.apps.googleusercontent.com",
+              "client_id": "719767685510-e11gkgigs4s1pkg6nd4k9vemcvr0p966.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:blood_app_nepal/screens/login_screen.dart';
+import 'package:blood_app/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Image.asset('assets/img/logo.png', width: 200.0,),
+        child: Image.asset('assets/img/logo.jpeg', width: 200.0,),
       ),
     );
   }

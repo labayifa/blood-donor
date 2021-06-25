@@ -1,7 +1,8 @@
-import 'package:blood_app_nepal/model/donor.dart';
-import 'package:blood_app_nepal/screens/thank_you.dart';
+import 'package:blood_app/model/donor.dart';
+import 'package:blood_app/screens/thank_you.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'login_screen.dart';
 import 'package:geolocator/geolocator.dart';
 import 'loading.dart';
@@ -44,11 +45,11 @@ class _EditProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
 
-    final donorRef = Firestore.instance.collection('donor');
+    final donorRef = FirebaseFirestore.instance.collection('donor');
 
     getUserLocation() async {
-      Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.lowest);
-      List<Placemark> placemarks= await Geolocator().placemarkFromCoordinates(position.latitude, position.longitude);
+      Position position = await  Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.lowest);
+      List<Placemark> placemarks= await placemarkFromCoordinates(position.latitude, position.longitude);
       Placemark placemark = placemarks[0];
       String completeAddress = '${placemark.subLocality},${placemark.locality}';
       addressController.text = completeAddress;
@@ -66,7 +67,7 @@ class _EditProfileState extends State<EditProfile> {
 
 
     updateDonorDetail() async {
-      donorRef.document(widget.currentUser.id).updateData({
+      donorRef.doc(widget.currentUser.id).update({
         "location":addressController.text,
         "locationSearch":setSearchParam(addressController.text),
         "bloodGroup":bloodGroupController.text,
@@ -110,7 +111,7 @@ class _EditProfileState extends State<EditProfile> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Thank You Hero!!"),
+        title: Text("Merci. Héros!!"),
       ),
       body: Builder(builder: (context){
         return Padding(
@@ -130,12 +131,12 @@ class _EditProfileState extends State<EditProfile> {
                   child: TextFormField(
                     validator: (value) {
                       if (value.isEmpty) {
-                        return 'What is your sweet name?';
+                        return 'Quel est votre nom?';
                       }
                       return null;
                     },
                     decoration: InputDecoration(
-                        hintText: "Display Name",
+                        hintText: "Nom complet",
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         )
@@ -150,14 +151,14 @@ class _EditProfileState extends State<EditProfile> {
                   child: TextFormField(
                     validator: (value) {
                       if (value.isEmpty) {
-                        return 'Reciever needs your location!';
+                        return 'Les receveurs ont besoin de votre position!';
                       }
                       return null;
                     },
                     decoration: InputDecoration(
                         fillColor: Colors.grey,
                         suffixIcon: IconButton(icon: Icon(Icons.location_on, color: Colors.red,), onPressed: getUserLocation),
-                        hintText: "Your Location",
+                        hintText: "Votre position",
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         )
@@ -170,14 +171,14 @@ class _EditProfileState extends State<EditProfile> {
                   padding: const EdgeInsets.only(top:8.0, bottom: 8.0),
                   child: TextFormField(
                     validator: (value) {
-                      if (value.isEmpty || value.length!=10) {
+                      if (value.isEmpty || value.length < 8) {
                         return 'Common! Number cannot be Empty';
                       }
                       return null;
                     },
                     keyboardType: TextInputType.numberWithOptions(),
                     decoration: InputDecoration(
-                        hintText: "Phone Number",
+                        hintText: "Téléphone",
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         )
@@ -191,7 +192,7 @@ class _EditProfileState extends State<EditProfile> {
                     Flexible(
                       child: DropdownButtonFormField(
                         validator: (value) => value == null
-                            ? 'Please provide Blood Group' : null,
+                            ? 'Veuillez fournir un Groupe Sanguin' : null,
                         onChanged: (val){
                           bloodGroupController.text = val;
                         },
@@ -200,7 +201,7 @@ class _EditProfileState extends State<EditProfile> {
                               borderRadius: BorderRadius.circular(10.0),
                             )
                         ),
-                        hint: Text("Blood Group"),
+                        hint: Text("Groupe Sanguin"),
                         items: [
                           DropdownMenuItem(child: Text("A+"),
                             value: "A+",),
@@ -225,7 +226,7 @@ class _EditProfileState extends State<EditProfile> {
                     Flexible(
                       child: DropdownButtonFormField(
                         validator: (value) => value == null
-                            ? 'Please provide Gender' : null,
+                            ? 'Veuillez renseigner votre sexe' : null,
                         onChanged: (val){
                           genderController.text = val;
                         },
@@ -234,14 +235,14 @@ class _EditProfileState extends State<EditProfile> {
                               borderRadius: BorderRadius.circular(10.0),
                             )
                         ),
-                        hint: Text("Choose your Sex"),
+                        hint: Text("Choisir un sexe"),
                         items: [
-                          DropdownMenuItem(child: Text("Male"),
-                            value: "Male",),
-                          DropdownMenuItem(child: Text("Female"),
-                            value: "Female",),
-                          DropdownMenuItem(child: Text("Other"),
-                            value: "Other",),
+                          DropdownMenuItem(child: Text("Masculin"),
+                            value: "Masculin",),
+                          DropdownMenuItem(child: Text("Féminin"),
+                            value: "Féminin",),
+                          DropdownMenuItem(child: Text("Autre"),
+                            value: "Autre",),
                         ],
                       ),
                     ),
@@ -252,7 +253,7 @@ class _EditProfileState extends State<EditProfile> {
                   child: TextFormField(
                     validator: (value) {
                       if (value.isEmpty) {
-                        return 'Tell us your Happiest Day!!';
+                        return 'Dite nous votre beau jour!!';
                       }
                       return null;
                     },
@@ -260,7 +261,7 @@ class _EditProfileState extends State<EditProfile> {
                       pickDate();
                     },
                     decoration: InputDecoration(
-                        hintText: "Date of Birth",
+                        hintText: "Date de naissance",
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
@@ -272,11 +273,11 @@ class _EditProfileState extends State<EditProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: FlatButton(
-                      child: Text("I am Ready to Donate", style: TextStyle(color: Colors.white, fontSize: 20.0),),
+                      child: Text("Prêt pour un dons", style: TextStyle(color: Colors.white, fontSize: 20.0),),
                       color: Theme.of(context).primaryColor,
                       onPressed: () {
                         if (_formKey.currentState.validate()) {
-                          Scaffold.of(context).showSnackBar(SnackBar(content: Text('Processing Data')));
+                          Scaffold.of(context).showSnackBar(SnackBar(content: Text('Traitement en cours')));
                           handleDonorUpdate();
                         }
                       }

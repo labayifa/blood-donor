@@ -13,14 +13,14 @@ class AboutUs extends StatelessWidget {
         child: Column(
           children: <Widget>[
             Text(
-              "This is the Combined Work of Your Koseli, Dari Gang and MRR for the shake of Happiness!! Yes to Brotherhood, Yes to Humanity. Stay Happy",
+              "Ceci est un travail visant à accompagner les bienfaits des dons de sang pour sauver des vies. La vie humaine est don, il faut en prendre soins",
               style: TextStyle(fontFamily: "Gotham", fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.black)
             ),
             ListTile(
               trailing: Icon(Icons.launch, color: Colors.pinkAccent,),
-              title: Text("Your Koseli",  style: TextStyle(fontFamily: "Gotham", fontWeight: FontWeight.bold, fontSize: 20.0, color: Colors.pink)),
+              title: Text("Mon sang, Des vies",  style: TextStyle(fontFamily: "Gotham", fontWeight: FontWeight.bold, fontSize: 20.0, color: Colors.pink)),
               onTap: (){
-                launch("https://yourkoseli.com");
+                launch("https://www.google.com");
               },
             )
           ],
